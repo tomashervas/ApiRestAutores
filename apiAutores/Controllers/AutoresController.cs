@@ -6,7 +6,7 @@ namespace apiAutores.Controllers
 {
     [ApiController]
     [Route("api/autores")]
-    public class AutoresController: ControllerBase
+    public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         public AutoresController(ApplicationDbContext context)
@@ -17,12 +17,40 @@ namespace apiAutores.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Autor>>> GetAutores()
         {
-            return await context.Autores.Include(x=>x.Libros).ToListAsync();
+            return await context.Autores.Include(x => x.Libros).ToListAsync();
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Autor>> GetAutor(int id)
+        {
+            var autor = await context.Autores.Include(x => x.Libros).FirstOrDefaultAsync(x => x.Id == id);
+            if (autor == null) { return NotFound(); }
+            return autor;
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<Autor>> GetAutorByName([FromQuery] string name, [FromHeader] int valor)
+        {
+            var autor =  await context.Autores.Include(x => x.Libros).FirstOrDefaultAsync(x => x.Name.Contains(name));
+            
+            if(autor == null)
+            {
+                return NotFound();
+            }
+
+            return autor;
         }
 
         [HttpPost]
         public async Task<ActionResult> SaveAutor(Autor autor)
         {
+            //validación en controlador
+            var exists = await context.Autores.AnyAsync(x => x.Name == autor.Name);
+            if (exists)
+            {
+                return BadRequest($"Ya existe un autor con el nombre {autor.Name}");
+            }
+
             context.Add(autor);
             await context.SaveChangesAsync();
             return Ok();
