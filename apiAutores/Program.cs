@@ -13,6 +13,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.Map("/ruta", app =>
+{
+    app.Run(async contexto =>
+    {
+        await contexto.Response.WriteAsync("Hello World!");
+
+    });
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

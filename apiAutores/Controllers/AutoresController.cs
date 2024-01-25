@@ -17,13 +17,13 @@ namespace apiAutores.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Autor>>> GetAutores()
         {
-            return await context.Autores.Include(x => x.Libros).ToListAsync();
+            return await context.Autores.ToListAsync();
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Autor>> GetAutor(int id)
         {
-            var autor = await context.Autores.Include(x => x.Libros).FirstOrDefaultAsync(x => x.Id == id);
+            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
             if (autor == null) { return NotFound(); }
             return autor;
         }
@@ -31,7 +31,7 @@ namespace apiAutores.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<Autor>> GetAutorByName([FromQuery] string name, [FromHeader] int valor)
         {
-            var autor =  await context.Autores.Include(x => x.Libros).FirstOrDefaultAsync(x => x.Name.Contains(name));
+            var autor =  await context.Autores.FirstOrDefaultAsync(x => x.Name.Contains(name));
             
             if(autor == null)
             {

@@ -1,5 +1,5 @@
 ﻿using apiAutores.Entidades;
-using apiAutores.Migrations;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +23,7 @@ namespace apiAutores.Controllers
                 return BadRequest("El id no puede ser 0");
             }
 
-            var libro = await context.Libros.Include(x => x.Autor).FirstOrDefaultAsync(x => x.Id == id);
+            var libro = await context.Libros.FirstOrDefaultAsync(x => x.Id == id);
             if (libro == null)
             {
                 return NotFound();
@@ -35,7 +35,7 @@ namespace apiAutores.Controllers
         [HttpGet("{title}")]
         public async Task<ActionResult<Libro>> GetLibroByTitle(string title)
         {
-            var libro = await context.Libros.Include(x => x.Autor).FirstOrDefaultAsync(x => x.Titulo.Contains(title));
+            var libro = await context.Libros.FirstOrDefaultAsync(x => x.Titulo.Contains(title));
             if (libro == null)
             {
                 return NotFound();
@@ -47,17 +47,17 @@ namespace apiAutores.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Libro>>> GetLibros()
         {
-            return await context.Libros.Include(x=>x.Autor).ToListAsync();
+            return await context.Libros.ToListAsync();
         }
 
         [HttpPost]
         public async Task<ActionResult> SaveLibro(Libro libro)
         {
-            var existsAutor = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
-            if (!existsAutor)
-            {
-                return BadRequest($"No existe ningun autor con id: {libro.AutorId}");
-            }
+            //var existsautor = await context.autores.anyasync(x => x.id == libro.autorid);
+            //if (!existsautor)
+            //{
+            //    return badrequest($"no existe ningun autor con id: {libro.autorid}");
+            //}
 
             context.Add(libro);
             await context.SaveChangesAsync();
