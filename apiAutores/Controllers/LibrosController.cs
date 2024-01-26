@@ -1,5 +1,6 @@
-﻿using apiAutores.Entidades;
-
+﻿using apiAutores.DTOs;
+using apiAutores.Entidades;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +11,16 @@ namespace apiAutores.Controllers
     public class LibrosController: ControllerBase
     {
         private readonly ApplicationDbContext context;
-        public LibrosController(ApplicationDbContext context)
+        private readonly IMapper mapper;
+
+        public LibrosController(ApplicationDbContext context, IMapper mapper )
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Libro>> GetLibro(int id)
+        public async Task<ActionResult<LibroGetDTO>> GetLibro(int id)
         {
             if (id == 0) 
             {
@@ -29,11 +33,13 @@ namespace apiAutores.Controllers
                 return NotFound();
             }
 
-            return libro;
+            var libroDTO = mapper.Map<LibroGetDTO>(libro);
+
+            return libroDTO;
         }
 
         [HttpGet("{title}")]
-        public async Task<ActionResult<Libro>> GetLibroByTitle(string title)
+        public async Task<ActionResult<LibroGetDTO>> GetLibroByTitle(string title)
         {
             var libro = await context.Libros.FirstOrDefaultAsync(x => x.Titulo.Contains(title));
             if (libro == null)
@@ -41,23 +47,31 @@ namespace apiAutores.Controllers
                 return NotFound();
             }
 
-            return libro;
+            var libroDTO = mapper.Map<LibroGetDTO>(libro);
+
+            return libroDTO;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Libro>>> GetLibros()
+        public async Task<ActionResult<List<LibroGetDTO>>> GetLibros()
         {
-            return await context.Libros.ToListAsync();
+            var libros = await context.Libros.ToListAsync();
+
+            var librosDTO = mapper.Map<List<LibroGetDTO>>(libros);
+            return librosDTO;
+
         }
 
         [HttpPost]
-        public async Task<ActionResult> SaveLibro(Libro libro)
+        public async Task<ActionResult> SaveLibro(LibroDTO libroDTO)
         {
             //var existsautor = await context.autores.anyasync(x => x.id == libro.autorid);
             //if (!existsautor)
             //{
             //    return badrequest($"no existe ningun autor con id: {libro.autorid}");
             //}
+
+            var libro = mapper.Map<Libro>(libroDTO);
 
             context.Add(libro);
             await context.SaveChangesAsync();

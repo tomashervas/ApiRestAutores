@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using apiAutores.Validations;
+using System.ComponentModel.DataAnnotations;
 
 namespace apiAutores.Entidades
 {
@@ -8,6 +9,8 @@ namespace apiAutores.Entidades
 
         [Required]
         [StringLength(120)]
+        [FirstCharUpper]
         public  string Titulo { get; set; }
+        public List<Comentario> Comentarios { get; set; }
     }
 }
