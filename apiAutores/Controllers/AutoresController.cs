@@ -12,11 +12,13 @@ namespace apiAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IConfiguration configuration;
 
-        public AutoresController(ApplicationDbContext context, IMapper mapper)
+        public AutoresController(ApplicationDbContext context, IMapper mapper, IConfiguration configuration)
         {
             this.context = context;
             this.mapper = mapper;
+            this.configuration = configuration;
         }
 
         [HttpGet]
@@ -100,6 +102,14 @@ namespace apiAutores.Controllers
             context.Remove(new Autor() { Id = id, Name = "Doe"});
             await context.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpGet("/hola")]
+        public ActionResult<string> Hola()
+        {
+            //var environment = Environment.GetEnvironmentVariable("HOLA");
+            var environment = configuration["HOLAS"];
+            return environment ?? "No hay esta variable de entorno";
         }
 
     }
