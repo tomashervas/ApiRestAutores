@@ -27,10 +27,10 @@ namespace apiAutores.Controllers
             return autoresDTO;
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "getAutorById")]
         public async Task<ActionResult<AutorGetDTO>> GetAutor(int id)
         {
-            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+            var autor = await context.Autores.Include(x => x.AutoresLibros).ThenInclude(x => x.Libro).FirstOrDefaultAsync(x => x.Id == id);
             if (autor == null) { return NotFound(); }
             var autorDTO = mapper.Map<AutorGetDTO>(autor);
             return autorDTO;
@@ -63,17 +63,15 @@ namespace apiAutores.Controllers
 
             context.Add(autor);
             await context.SaveChangesAsync();
-            return Ok();
+
+            var autorDTOReturn = mapper.Map<AutorGetDTO>(autor);
+
+            return CreatedAtRoute("getAutorById", new {id = autor.Id}, autorDTOReturn ) ;
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> ModifyAutor(Autor autor, int id)
+        public async Task<ActionResult> ModifyAutor(AutorDTO autorDTO, int id)
         {
-            if (autor.Id != id)
-            {
-                return BadRequest("El id del autor no coincide con el id de la url");
-            }
-
             var exists = await context.Autores.AnyAsync(autor => autor.Id == id);
 
             if (!exists)
@@ -81,9 +79,12 @@ namespace apiAutores.Controllers
                 return NotFound();
             }
 
+            var autor = mapper.Map<Autor>(autorDTO);
+            autor.Id = id;
+
             context.Update(autor);
             await context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
