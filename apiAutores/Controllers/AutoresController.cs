@@ -94,6 +94,7 @@ namespace apiAutores.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult> DeleteAutor(int id)
         {
             var exists = await context.Autores.AnyAsync(autor => autor.Id == id);

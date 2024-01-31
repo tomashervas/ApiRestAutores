@@ -33,7 +33,7 @@ namespace apiAutores.Controllers
 
             if (res.Succeeded)
             {
-                return GenerateToken(userCredentials);
+                return await GenerateToken(userCredentials);
             } else
             {
                 return BadRequest(res.Errors);
@@ -46,7 +46,7 @@ namespace apiAutores.Controllers
             var res = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
             if (res.Succeeded)
             {
-                return GenerateToken(userCredentials);
+                return await GenerateToken(userCredentials);
             }
             else
             {
@@ -58,19 +58,24 @@ namespace apiAutores.Controllers
 
         [HttpGet("RefreshToken")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult<ResponseAuth> RefreshToken()
+        public async Task<ActionResult<ResponseAuth>> RefreshToken()
         {
             var emailClaim = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
             var email = emailClaim!.Value;
-            return GenerateToken(new UserCredentials() { Email = email });
+            return await GenerateToken(new UserCredentials() { Email = email });
         }
 
-        private ResponseAuth GenerateToken(UserCredentials userCredentials)
+        private async Task<ResponseAuth> GenerateToken(UserCredentials userCredentials)
         {
             var claims = new List<Claim>()
             {
-                new Claim("email", userCredentials.Email)
+                new("email", userCredentials.Email)
             };
+
+            var user = await userManager.FindByEmailAsync(userCredentials.Email);
+            var claimsDB = await userManager.GetClaimsAsync(user!);
+            claims.AddRange(claimsDB);
+
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["SECRET_JWT"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -88,6 +93,24 @@ namespace apiAutores.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Expiration = expiration
             };
+        }
+
+        [HttpPost("MakeAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult> MakeAdmin(EditAdmin editAdmin)
+        {
+            var user = await userManager.FindByEmailAsync(editAdmin.Email);
+            await userManager.AddClaimAsync(user!, new Claim("IsAdmin", "1"));
+            return NoContent();
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [HttpPost("RemoveAdmin")]
+        public async Task<ActionResult> RemoveAdmin(EditAdmin editAdmin)
+        {
+            var user = await userManager.FindByEmailAsync(editAdmin.Email);
+            await userManager.RemoveClaimAsync(user!, new Claim("IsAdmin", "1"));
+            return NoContent();
         }
 
     }
