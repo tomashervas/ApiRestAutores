@@ -1,4 +1,6 @@
 ﻿using apiAutores.DTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -54,7 +56,16 @@ namespace apiAutores.Controllers
 
         }
 
-            private ResponseAuth GenerateToken(UserCredentials userCredentials)
+        [HttpGet("RefreshToken")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<ResponseAuth> RefreshToken()
+        {
+            var emailClaim = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
+            var email = emailClaim!.Value;
+            return GenerateToken(new UserCredentials() { Email = email });
+        }
+
+        private ResponseAuth GenerateToken(UserCredentials userCredentials)
         {
             var claims = new List<Claim>()
             {
