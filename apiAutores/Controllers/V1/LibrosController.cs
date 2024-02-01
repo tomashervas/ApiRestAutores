@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace apiAutores.Controllers
+namespace apiAutores.Controllers.V1
 {
     [ApiController]
-    [Route("api/libros")]
+    [Route("api/v1/libros")]
     public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -20,7 +20,7 @@ namespace apiAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id:int}", Name = "getLibrobyId")]
+        [HttpGet("{id:int}", Name = "getLibrobyIdv1")]
         public async Task<ActionResult<LibroGetDTO>> GetLibro(int id)
         {
             if (id == 0)
@@ -87,7 +87,7 @@ namespace apiAutores.Controllers
 
             // var libroDTORespuesta = mapper.Map<LibroGetDTO>(libro);
             //TODO: retornar libroDTORespuesta
-            return CreatedAtRoute("getLibrobyId", new { id = libro.Id }, libro);
+            return CreatedAtRoute("getLibrobyIdv1", new { id = libro.Id }, libro);
         }
 
         [HttpPut("{id:int}")]

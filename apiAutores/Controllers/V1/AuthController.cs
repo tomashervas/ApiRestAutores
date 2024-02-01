@@ -8,11 +8,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace apiAutores.Controllers
+namespace apiAutores.Controllers.V1
 {
     [ApiController]
-    [Route("api/auth")]
-    public class AuthController: ControllerBase
+    [Route("api/v1/auth")]
+    public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
@@ -34,7 +34,8 @@ namespace apiAutores.Controllers
             if (res.Succeeded)
             {
                 return await GenerateToken(userCredentials);
-            } else
+            }
+            else
             {
                 return BadRequest(res.Errors);
             }

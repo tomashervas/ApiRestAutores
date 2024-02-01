@@ -1,4 +1,5 @@
 using apiAutores;
+using apiAutores.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,11 +36,15 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddDataProtection();
 
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles ).AddNewtonsoftJson();
+builder.Services.AddControllers(x =>
+{
+    x.Conventions.Add(new SwagggerByVersion());
+}).AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles ).AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIAutores", Version = "v1" });
+    c.SwaggerDoc("v2", new OpenApiInfo { Title = "WebAPIAutores", Version = "v2" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -86,7 +91,11 @@ app.Map("/ruta", app =>
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIAutores v1");
+        c.SwaggerEndpoint("/swagger/v2/swagger.json", "WebAPIAutores v2");
+    });
 }
 
 app.UseHttpsRedirection();

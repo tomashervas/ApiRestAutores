@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace apiAutores.Controllers
+namespace apiAutores.Controllers.V2
 {
     [ApiController]
-    [Route("api/autores")]
+    [Route("api/v2/autores")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AutoresController : ControllerBase
     {
@@ -33,7 +33,7 @@ namespace apiAutores.Controllers
             return autoresDTO;
         }
 
-        [HttpGet("{id:int}", Name = "getAutorById")]
+        [HttpGet("{id:int}", Name = "getAutorByIdv2")]
         public async Task<ActionResult<AutorGetDTO>> GetAutor(int id)
         {
             var autor = await context.Autores.Include(x => x.AutoresLibros).ThenInclude(x => x.Libro).FirstOrDefaultAsync(x => x.Id == id);
@@ -45,7 +45,7 @@ namespace apiAutores.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<List<AutorGetDTO>>> GetAutorByName([FromQuery] string name, [FromHeader] int valor)
         {
-            var autores =  await context.Autores.Where(x => x.Name.Contains(name)).ToListAsync();
+            var autores = await context.Autores.Where(x => x.Name.Contains(name)).ToListAsync();
             var autoresDTO = mapper.Map<List<AutorGetDTO>>(autores);
             if (autoresDTO.Count == 0)
             {
@@ -72,7 +72,7 @@ namespace apiAutores.Controllers
 
             var autorDTOReturn = mapper.Map<AutorGetDTO>(autor);
 
-            return CreatedAtRoute("getAutorById", new {id = autor.Id}, autorDTOReturn ) ;
+            return CreatedAtRoute("getAutorByIdv2", new { id = autor.Id }, autorDTOReturn);
         }
 
         [HttpPut("{id:int}")]
@@ -104,7 +104,7 @@ namespace apiAutores.Controllers
                 return NotFound();
             }
 
-            context.Remove(new Autor() { Id = id, Name = "Doe"});
+            context.Remove(new Autor() { Id = id, Name = "Doe" });
             await context.SaveChangesAsync();
             return Ok();
         }

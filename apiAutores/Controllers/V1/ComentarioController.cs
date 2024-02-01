@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace apiAutores.Controllers
+namespace apiAutores.Controllers.V1
 {
     [ApiController]
-    [Route("api/libros/{libroId:int}/comentario")]
+    [Route("api/v1/libros/{libroId:int}/comentario")]
     public class ComentarioController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -35,7 +35,7 @@ namespace apiAutores.Controllers
 
         }
 
-        [HttpGet("{id:int}", Name = "getComentarioById")]
+        [HttpGet("{id:int}", Name = "getComentarioByIdv1")]
         public async Task<ActionResult<ComentarioDTO>> GetById(int id)
         {
             var comentario = await context.Libros.AnyAsync(x => x.Id == id);
@@ -67,7 +67,7 @@ namespace apiAutores.Controllers
             await context.SaveChangesAsync();
 
             var comentarioDTOresponse = mapper.Map<ComentarioDTO>(comentario);
-            return CreatedAtRoute("getComentarioById", new { id = comentario.Id, libroId }, comentarioDTOresponse);
+            return CreatedAtRoute("getComentarioByIdv1", new { id = comentario.Id, libroId }, comentarioDTOresponse);
         }
 
         [HttpPut("{id:int}")]
@@ -94,4 +94,3 @@ namespace apiAutores.Controllers
         }
     }
 }
- 
