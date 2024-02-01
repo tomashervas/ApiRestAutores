@@ -11,6 +11,7 @@ namespace apiAutores.Controllers.V1
     [ApiController]
     [Route("api/v1/autores")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;

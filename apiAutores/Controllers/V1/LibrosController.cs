@@ -9,6 +9,7 @@ namespace apiAutores.Controllers.V1
 {
     [ApiController]
     [Route("api/v1/libros")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext context;

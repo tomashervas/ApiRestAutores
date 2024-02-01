@@ -12,6 +12,7 @@ namespace apiAutores.Controllers.V1
 {
     [ApiController]
     [Route("api/v1/auth")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> userManager;

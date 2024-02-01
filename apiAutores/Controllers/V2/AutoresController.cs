@@ -11,11 +11,13 @@ namespace apiAutores.Controllers.V2
     [ApiController]
     [Route("api/v2/autores")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IConfiguration configuration;
+        private readonly int records = 3;
 
         public AutoresController(ApplicationDbContext context, IMapper mapper, IConfiguration configuration)
         {
@@ -26,11 +28,18 @@ namespace apiAutores.Controllers.V2
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<AutorGetDTO>>> GetAutores()
+        public async Task<ActionResult> GetAutores([FromQuery]int page = 1)
         {
-            var autores = await context.Autores.ToListAsync();
+            var offset = (page - 1) * records;
+            var totalPages = (int)Math.Ceiling((double)context.Autores.Count() / records);
+            var autores = await context.Autores.Skip(offset).Take(records).ToListAsync();
             var autoresDTO = mapper.Map<List<AutorGetDTO>>(autores);
-            return autoresDTO;
+            return Ok(new
+            {
+                pages = totalPages,
+                autores = autoresDTO,
+                current_page = page
+            });
         }
 
         [HttpGet("{id:int}", Name = "getAutorByIdv2")]

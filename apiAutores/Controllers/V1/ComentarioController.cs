@@ -11,6 +11,7 @@ namespace apiAutores.Controllers.V1
 {
     [ApiController]
     [Route("api/v1/libros/{libroId:int}/comentario")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class ComentarioController : ControllerBase
     {
         private readonly ApplicationDbContext context;
